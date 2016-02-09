@@ -50,6 +50,6 @@ name.id$team<-cumsum(name.id$team)
 
 kteam_df<-merge(kteam_df, name.id, c('team'), all.x=T)
 
-#Game appearances in Top 4 team
+#Player game appearances in Top 4 team
 kteam_df$App<-as.numeric(as.character(kteam_df$App))
 ggplot(subset(kteam_df,name.y ==c('전북')|name.y ==c('수원')|name.y ==c('포항')|name.y ==c('서울'))) + geom_density(aes(x = App, colour = name.y)) + labs(x = c('경기출장'))
