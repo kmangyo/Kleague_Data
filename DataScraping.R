@@ -25,7 +25,8 @@ kleague<-function(team.id) {
 kleague<-'http://www.kleague.com/kr/sub.asp?avan=1008050000'
 post <- list(
 submit = "조회",
-"iptTeamid" = as.character(team.id)
+"iptTeamid" = as.character(team.id),
+"iptMeetYear" = 2015
 )
 resp<-POST(kleague, body=post, encode="form")
 resp_iconv<-iconv(resp,"UTF-8", "CP949")
