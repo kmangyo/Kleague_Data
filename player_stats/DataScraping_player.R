@@ -5,8 +5,11 @@ library(stringi)
 library(stringr)
 library(ggplot2)
 
+#k리그 팀 정보 페이지
 url<-'http://www.kleague.com/KOR_2016/classic/clubIntro.asp'
 team <- read_html(url) %>% html_nodes('a')
+
+#k리그 팀 id 획득
 team.id <- team[89:100]
 
 team.id.txt <- list()
@@ -23,8 +26,8 @@ team.id.txt<-data.frame(do.call('rbind', strsplit(as.character(team.id.txt$X1),'
 names(team.id.txt)<-c('url','name')
 
 team.id.txt$id<-str_sub(team.id.txt$url, -5,-3)
-#gsub("\\w", "", team.id.txt$name)
 
+#k리그 팀 id 로 찾아들어간 url에서 선수 id 획득
 url.team<-'http://www.kleague.com/KOR_2016/classic/clubIntro.asp?teamId='
 url.team<-paste0(url.team, team.id.txt$id)
 
@@ -45,6 +48,7 @@ player.id.txt<-subset(player.id.txt, count>0)
 player.id.txt.num<-data.frame(do.call('rbind', strsplit(as.character(player.id.txt$value),'>',fixed=TRUE)))
 player.id.txt.num$id<-str_sub(player.id.txt.num$X1, -9,-2)
 
+#k리그 선수 id로 선수 기록 획득
 url.player<-'http://www.kleague.com/KOR_2016/classic/playerInfo.asp?player_id='
 url.player<-paste0(url.player, player.id.txt.num$id)
 
@@ -69,16 +73,19 @@ player.df.bio<-strsplit(as.character(player.df$bio),'\t\t')
 player.df.bio<-do.call(rbind, player.df.bio)
 player.df.bio<-data.frame(player.df.bio)
 
+#k리그 선수의 기본 정보 (팀, 포지션, 생년월일 등)
 player.df.bio<-player.df.bio[c(3,6,9,12,15,18,21,25,29,33)]
 #3 = team, 6 = position, 9 = number, 12 = nation, 15 = birth, 18 = height, 21 = weight, 25 = blood, 29 = debut, 33 = school
 names(player.df.bio)<-c('team','pst','num','nation','birth','height','weight','blood','debut','school')
 player.df<-cbind(player.df, player.df.bio)
 player.df<-player.df[c(-2)]
 
+#k리그 선수의 경기 기록 정보
 stats.player.df<-rbind.fill(stats.player)
 stats.player.df$id<-with(stats.player.df, ifelse(연도==c('계'),1,0))
 stats.player.df$id<-cumsum(stats.player.df$id)
 
+#k리그 선수의 개인 신상 정보와 기록정보 병합
 stats.player.df_sum<-merge(stats.player.df, player.df, c('id'),all.x=T)
 stats.player.df_sum<-stats.player.df_sum[complete.cases(stats.player.df_sum[,3]),]
 stats.player.df_sum$birth.year<-str_sub(stats.player.df_sum$birth, 1,4)
