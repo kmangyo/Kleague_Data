@@ -94,6 +94,9 @@ stats.player.df_sum$age.game<-with(stats.player.df_sum, as.numeric(as.character(
 
 names(stats.player.df_sum)[4]<-'game'
 
+#나이와 게임 출장수의 관계
+#k리그 데뷔 연차와 게임 출장수의 관계
+#위의 관계에 대한 포지션별 차이 등
 with(stats.player.df_sum, plot(age, game))
 with(stats.player.df_sum, plot(age.game, game))
 ggplot(data = stats.player.df_sum, aes(x = age, y = game, colour = pst)) + geom_point()
@@ -102,6 +105,7 @@ ggplot(data = subset(stats.player.df_sum, pst==c('FW')), aes(x = age, y = game))
 ggplot(data = stats.player.df_sum, aes(x = age.game, y = game, colour = pst)) + geom_point()
 ggplot(data = subset(stats.player.df_sum, pst==c('FW')), aes(x = age.game, y = game)) + geom_point()
 
+#2015시즌 데이터만 보기 (현재 등록선수 현황이므로 과거에 등록되었던 선수 정보는 없음)
 ggplot(subset(stats.player.df_sum, 연도==2015), aes(factor(age), game)) + geom_boxplot() + ggtitle("Age VS. # of Games")
 ggplot(subset(stats.player.df_sum, 연도==2015), aes(factor(age.game), game)) + geom_boxplot() +ggtitle("Game.age VS. # of Games")
 
