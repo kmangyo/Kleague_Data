@@ -53,6 +53,14 @@ names(score)[1]<-'score'
 names(goal.time)[1]<-'goal.time'
 names(goal.player)[1]<-'goal.player'
 
+#round= the number of round
+#audi = the number of audience in the game
+#location = location date, and time of the game
+#team.name = the name of hone team
+#score = the score of game (home:away)
+#goal.time = the goal time in the game
+#goal.player = the player of the goal in the game
+
 goal.player$seq<-1
 goal.player$seq<-with(goal.player, ave(seq,L1,FUN=cumsum))
 goal.player$team<-goal.player$seq %% 2
