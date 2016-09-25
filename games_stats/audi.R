@@ -1,4 +1,5 @@
 # 데이터는 케이리그 홈페이지에 있는 관중데이터를 활용, 2016시즌 1~29라운드.
+# 수집 방벙은 이 URL https://github.com/kmangyo/Kleague_Data/blob/master/games_stats/DataScraping_games.R
 
 library(ggplot2)
 library(MASS)
