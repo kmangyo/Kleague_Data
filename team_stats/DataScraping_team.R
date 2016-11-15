@@ -16,6 +16,10 @@ name.id<-data.frame(cbind(name,id))
 
 #Getting K league classic data
 classic<-c('전북','수원','포항','서울','성남','제주','인천','울산','전남','광주','부산','대전')
+
+classic<-c('전북','수원','포항','서울','제주','울산') #2015 
+classic<-c('서울','전북','제주','울산','포항','수원') #2016
+
 name.id<-subset(name.id, name %in% classic)
 name.id$value<-stri_sub(name.id$id,16,18)
 name.id<-name.id[c(-2)]
@@ -26,7 +30,7 @@ kleague<-'http://www.kleague.com/kr/sub.asp?avan=1008050000'
 post <- list(
 submit = "조회",
 "iptTeamid" = as.character(team.id),
-"iptMeetYear" = 2015
+"iptMeetYear" = 2015 #or 2016
 )
 resp<-POST(kleague, body=post, encode="form")
 resp_iconv<-iconv(resp,"UTF-8", "CP949")
@@ -53,4 +57,32 @@ kteam_df<-merge(kteam_df, name.id, c('team'), all.x=T)
 
 #Player game appearances in Top 4 team
 kteam_df$App<-as.numeric(as.character(kteam_df$App))
-ggplot(subset(kteam_df,name.y ==c('전북')|name.y ==c('수원')|name.y ==c('포항')|name.y ==c('서울'))) + geom_density(aes(x = App, colour = name.y)) + labs(x = c('경기출장'))
+
+#2015 season
+kteam_df_2015<-kteam_df
+ggplot(subset(kteam_df_2015,name.y ==c('전북')|name.y ==c('수원')|name.y ==c('포항')|name.y ==c('서울'))) + geom_density(aes(x = App, colour = name.y)) + labs(x = c('경기출장'))
+
+#2016 season
+kteam_df_2016<-kteam_df
+ggplot(subset(kteam_df_2016,name.y ==c('전북')|name.y ==c('서울')|name.y ==c('제주')|name.y ==c('울산'))) + geom_density(aes(x = App, colour = name.y)) + labs(x = c('경기출장'))
+
+#2015/16 season
+kteam_df_2016$season<-2016
+kteam_df_2015$season<-2015
+kteam_df_2016$id<-with(kteam_df_2016, paste0(season,"_",name.y))
+kteam_df_2015$id<-with(kteam_df_2015, paste0(season,"_",name.y))
+kteam_df_sum<-rbind(kteam_df_2015, kteam_df_2016)
+
+#Viz
+ggplot(subset(kteam_df_sum,id ==c('2015_서울')|id ==c('2016_서울')|id ==c('2015_전북')|id ==c('2016_전북')|id ==c('2015_포항')|id ==c('2015_수원')|id ==c('2016_제주')|id ==c('2016_울산'))) + geom_density(aes(x = App, colour = id)) + labs(x = c('경기출장')) + facet_wrap(~ season)
+ggplot(subset(kteam_df_sum,id ==c('2015_서울')|id ==c('2016_서울')|id ==c('2015_전북')|id ==c('2016_전북')|id ==c('2015_포항')|id ==c('2015_수원')|id ==c('2016_제주')|id ==c('2016_울산')),aes(App, fill = id)) + geom_density(alpha = 0.2) + labs(x = c('경기출장')) + facet_wrap(~ season)
+
+ggplot(subset(kteam_df_sum,id ==c('2015_서울')|id ==c('2016_서울')|id ==c('2015_전북')|id ==c('2016_전북')),aes(App, fill = id)) + geom_density(alpha = 0.5) + labs(x = c('경기출장')) + facet_wrap(~ name.y)
+ggplot(subset(kteam_df_sum,id ==c('2015_수원')|id ==c('2016_수원')|id ==c('2015_포항')|id ==c('2016_포항')),aes(App, fill = id)) + geom_density(alpha = 0.5) + labs(x = c('경기출장')) + facet_wrap(~ name.y)
+ggplot(subset(kteam_df_sum,id ==c('2015_제주')|id ==c('2016_제주')|id ==c('2015_울산')|id ==c('2016_울산')),aes(App, fill = id)) + geom_density(alpha = 0.5) + labs(x = c('경기출장')) + facet_wrap(~ name.y)
+
+ggplot(subset(kteam_df_sum,id ==c('2016_서울')|id ==c('2016_전북')|id ==c('2016_수원')|id ==c('2016_포항')),aes(App, fill = id)) + geom_density(alpha = 0.3) + labs(x = c('경기출장')) + facet_wrap(~ season)
+
+#Numeirc info.
+kteam_df_sum %>% group_by(id) %>% summarise(count=n())
+kteam_df_sum %>% group_by(id) %>% summarise(mean=mean(App),median=median(App))
