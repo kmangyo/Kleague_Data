@@ -1,12 +1,13 @@
 # Install docker in Mac OS for RSelenium
 # https://docs.docker.com/docker-for-mac/
 # Follow the methods in the docs
+# Relenuium packages docs are below.
 vignette("RSelenium-docker", package = "RSelenium") 
 vignette("RSelenium-basics", package = "RSelenium")
 
 # https://hub.docker.com/r/selenium/node-firefox/tags/
-# Game Info (http://www.kleague.com/KOR_2016/classic/match_record.asp?meet_year=2016&meet_seq=1&gameId=223)
-
+# Game Info.(HT, Goal time, etc.) in K-League officail page 
+# http://www.kleague.com/KOR_2016/classic/match_record.asp?meet_year=2016&meet_seq=1&gameId=223
 library(RSelenium)
 library(rvest)
 library(dplyr)
@@ -14,6 +15,7 @@ library(reshape2)
 library(stringi)
 library(ggplot2)
 
+# Activate the virtual server
 remDr <- remoteDriver(port = 4445L)
 remDr$open()
 remDr$navigate("http://comments.sports.naver.com/template/vs.nhn?category=kleague&gameId=201611060509223#")
@@ -25,7 +27,9 @@ date<- read_html(getsource[[1]]) %>% html_nodes(".cbox_date") %>% html_text()
 id<- read_html(getsource[[1]]) %>% html_nodes(".cbox_user_id") %>% html_text()
 team<- read_html(getsource[[1]]) %>% html_nodes(".cbox_user_thumb")
 
-# Comment page 1p ~ 348p
+# Comment web pages from 1p to 348p
+# Create the element names and actions in order. This is a kind of two dimension matrix
+
 seq_num<-seq(2,348,by=10)
 
 seq_nums<-list()
@@ -82,12 +86,16 @@ comment_df$team<-stri_sub(comment_df$team, -5, -4)
 comment_df$date<-as.POSIXlt(comment_df$date)
 comment_df$day<-comment_df$date$mday
 
+# subset comments data in the game day (11/6)
 comment_df<-subset(comment_df, day==6)
 
+# subset comments data during the game (15:00~17:00)
 comment_df$hour<-comment_df$date$hour
 comment_df<-subset(comment_df, hour>=15&hour<17)
 
 comment_df$min<-comment_df$date$min
+
+# divided the time by 5 min.
 comment_df$min<-floor(comment_df$min/5)*5
 
 comment_df$time<-with(comment_df, paste0(hour,c(':'),min))
