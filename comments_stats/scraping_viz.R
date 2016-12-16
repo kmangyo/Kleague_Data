@@ -52,6 +52,7 @@ date_list<-list()
 id_list<-list()
 team_list<-list()
 
+# Supporting team is pic. so, we have got image url.
 for(i in 1:nrow(seq_nums_df)) {
   page_click <- remDr$findElement(using=as.character(seq_nums_df[i,1]), value=as.character(seq_nums_df[i,2]))
   page_click$clickElement()
@@ -67,6 +68,7 @@ comment_list<-melt(comment_list)
 date_list<-melt(date_list)
 id_list<-melt(id_list)
 
+# Create the list element number in order. This is also a kind of two dimension matrix
 team_num<-data.frame(len=rep(1:length(team_list), each=10),seq=rep(1:10,times=length(team_list)))
 
 team_list_cha<-list()
@@ -81,6 +83,7 @@ comment_df<-cbind(comment_list, date_list, id_list, team_list_cha)
 comment_df<-comment_df[c(-2,-4,-6,-8)]
 names(comment_df)<-c('comment','date','id','team')
 
+# Getting supporting team name from URL
 comment_df$team<-stri_sub(comment_df$team, -5, -4)
 
 comment_df$date<-as.POSIXlt(comment_df$date)
@@ -98,11 +101,13 @@ comment_df$min<-comment_df$date$min
 # divided the time by 5 min.
 comment_df$min<-floor(comment_df$min/5)*5
 
+# some data manipulation works
 comment_df$time<-with(comment_df, paste0(hour,c(':'),min))
 comment_df$date<-as.character(comment_df$date)
 comment_df_freq<-comment_df %>% group_by(time) %>% summarise(count=n())
 comment_df_freq_team <- comment_df %>% group_by(team, time) %>% summarise(count=n())
 
+# Viz the number of comments during the game time
 theme_set(theme_gray(base_family='NanumGothic'))
 ggplot(comment_df_freq, aes(x=as.factor(time), y=count)) + geom_bar(stat="identity") + geom_vline(xintercept = which(comment_df_freq$time == '15:50')) + geom_vline(xintercept = which(comment_df_freq$time == '16:10')) +geom_vline(xintercept = which(comment_df_freq$time == '16:20'),colour = "red") + xlab("Time") + ylab("Count") + ggtitle("Num. of comments during the Game")
 ggplot(comment_df_freq_team, aes(x=as.factor(time), y=count, fill=team)) + geom_bar(stat="identity",position=position_dodge()) + geom_vline(xintercept = which(comment_df_freq$time == '15:50')) + geom_vline(xintercept = which(comment_df_freq$time == '16:10')) +geom_vline(xintercept = which(comment_df_freq$time == '16:20'),colour = "red") + xlab("Time") + ylab("Count") + ggtitle("Num. of comments during the Game") + scale_fill_manual(values = c('#999999', '#D55E00','#009E73') )  
