@@ -109,5 +109,18 @@ comment_df_freq_team <- comment_df %>% group_by(team, time) %>% summarise(count=
 
 # Viz the number of comments during the game time
 theme_set(theme_gray(base_family='NanumGothic'))
+
+comment_df_freq$time<- 
+  with(comment_df_freq, ifelse(time==c('15:0'), c('15:00'),
+                               ifelse(time==c('15:5'), c('15:05'),
+                                      ifelse(time==c('16:5'), c('16:05'),
+                                             ifelse(time==c('16:0'), c('16:00'),time)))))
+
 ggplot(comment_df_freq, aes(x=as.factor(time), y=count)) + geom_bar(stat="identity") + geom_vline(xintercept = which(comment_df_freq$time == '15:50')) + geom_vline(xintercept = which(comment_df_freq$time == '16:10')) +geom_vline(xintercept = which(comment_df_freq$time == '16:20'),colour = "red") + xlab("Time") + ylab("Count") + ggtitle("Num. of comments during the Game")
-ggplot(comment_df_freq_team, aes(x=as.factor(time), y=count, fill=team)) + geom_bar(stat="identity",position=position_dodge()) + geom_vline(xintercept = which(comment_df_freq$time == '15:50')) + geom_vline(xintercept = which(comment_df_freq$time == '16:10')) +geom_vline(xintercept = which(comment_df_freq$time == '16:20'),colour = "red") + xlab("Time") + ylab("Count") + ggtitle("Num. of comments during the Game") + scale_fill_manual(values = c('#999999', '#D55E00','#009E73') )  
+
+comment_df_freq_team$time<- 
+  with(comment_df_freq_team, ifelse(time==c('15:0'), c('15:00'),
+                               ifelse(time==c('15:5'), c('15:05'),
+                                      ifelse(time==c('16:5'), c('16:05'),
+                                             ifelse(time==c('16:0'), c('16:00'),time)))))
+ggplot(subset(comment_df_freq_team,team!=('기타')), aes(x=as.factor(time), y=count, fill=team)) + geom_bar(stat="identity",position=position_dodge()) + geom_vline(xintercept = which(comment_df_freq$time == '15:50')) + geom_vline(xintercept = which(comment_df_freq$time == '16:15')) +geom_vline(xintercept = which(comment_df_freq$time == '16:25'),colour = "red") + xlab("Time") + ylab("Count") + ggtitle("Num. of comments during the Game") + scale_fill_manual(values = c('#D55E00','#009E73') )  
