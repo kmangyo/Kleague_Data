@@ -45,6 +45,8 @@ wordcloud2(data = text.noun_seoul, size = 1, fontFamily='NanumGothic',color = "d
 
 text.noun<- rbind(text.noun_jb, text.noun_seoul)
 text.noun<- text.noun %>% group_by(Var1) %>% summarise(Freq=sum(Freq))
+text.noun<-text.noun %>% arrange(-Freq)
+
 wordcloud2(data = text.noun, size = 1, fontFamily='NanumGothic',color = "skyblue",backgroundColor = "darkblue")
 
 # chi square
