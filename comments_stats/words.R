@@ -1,18 +1,17 @@
 library(KoNLP)
 library(reshape2)
 library(dplyr)
+library(wordcloud2)
 
 comment_df_seoul<-subset(comment_df, team==c('서울'))
 comment_df_jb<-subset(comment_df, team==c('전북'))
 
 comment_df_seoul$comment<- gsub("은 |는 |이 |가 |의 |ㄱ|ㄴ|ㄷ|ㄹ|ㅁ|ㅂ|ㅅ|ㅇ|ㅈ|ㅊ|ㅋ|ㅌ|ㅍ|ㅎ|ㅏ|ㅑ|ㅓ|ㅕ|ㅗ|ㅛ|ㅜ|ㅠ|ㅡ|ㅣ|ㅃ|ㅉ|ㄲ|ㅆ", " ", comment_df_seoul$comment)
-
 comment_df_seoul$comment<- gsub("[[:punct:]]", " ", comment_df_seoul$comment)
 comment_df_seoul$comment<- gsub("\\w", " ", comment_df_seoul$comment)
 comment_df_seoul$comment<- gsub("\\s+", " ", comment_df_seoul$comment)
 
 comment_df_jb$comment<- gsub("은 |는 |이 |가 |의 |ㄱ|ㄴ|ㄷ|ㄹ|ㅁ|ㅂ|ㅅ|ㅇ|ㅈ|ㅊ|ㅋ|ㅌ|ㅍ|ㅎ|ㅏ|ㅑ|ㅓ|ㅕ|ㅗ|ㅛ|ㅜ|ㅠ|ㅡ|ㅣ|ㅃ|ㅉ|ㄲ|ㅆ", " ", comment_df_jb$comment)
-
 comment_df_jb$comment<- gsub("[[:punct:]]", " ", comment_df_jb$comment)
 comment_df_jb$comment<- gsub("\\w", " ", comment_df_jb$comment)
 comment_df_jb$comment<- gsub("\\s+", " ", comment_df_jb$comment)
@@ -41,3 +40,11 @@ text.noun_jb<-table(text.noun_jb$value)
 text.noun_jb<-subset(data.frame(text.noun_jb), Freq > 1)
 text.noun_jb<-text.noun_jb %>% arrange(-Freq)
 
+wordcloud2(data = text.noun_jb, size = 1, fontFamily='NanumGothic',color = "white",backgroundColor = "darkgreen")
+wordcloud2(data = text.noun_seoul, size = 1, fontFamily='NanumGothic',color = "darkred",backgroundColor = "black")
+
+text.noun<- rbind(text.noun_jb, text.noun_seoul)
+text.noun<- text.noun %>% group_by(Var1) %>% summarise(Freq=sum(Freq))
+wordcloud2(data = text.noun, size = 1, fontFamily='NanumGothic',color = "skyblue",backgroundColor = "darkblue")
+
+# chi square
