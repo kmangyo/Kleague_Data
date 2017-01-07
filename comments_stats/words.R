@@ -49,4 +49,23 @@ text.noun<-text.noun %>% arrange(-Freq)
 
 wordcloud2(data = text.noun, size = 1, fontFamily='NanumGothic',color = "skyblue",backgroundColor = "darkblue")
 
-# chi square
+#chi-square test
+text.noun_jb$team<-'JB'
+text.noun_seoul$team<-'Seoul'
+
+text.noun_byteam<-rbind(text.noun_jb, text.noun_seoul)
+text.noun_byteam$jb.sum<-sum(text.noun_jb$Freq)
+text.noun_byteam$seoul.sum<-sum(text.noun_seoul$Freq)
+text.noun_byteam$all<-sum(text.noun_byteam$Freq)
+names(text.noun)[2]<-'key.freq'
+text.noun_byteam<-merge(text.noun_byteam, text.noun, c('Var1'),all.x=T)
+
+text.noun_byteam$E1<- with(text.noun_byteam, (seoul.sum * key.freq)/all)
+text.noun_byteam$E2<- with(text.noun_byteam, (jb.sum * key.freq)/all)
+text.noun_byteam$LL<- with(text.noun_byteam, 2 *(Freq*log(Freq/E1)+(key.freq-Freq)*log((key.freq-Freq)/E2)))
+
+text.noun_byteam$jb.ngram<-nrow(subset(text.noun_byteam,team==c('JB')))
+text.noun_byteam$seoul.ngram<-nrow(subset(text.noun_byteam,team==c('Seoul')))
+  
+text.noun_byteam$rank<- with(text.noun_byteam, ifelse(team==c('JB'),LL*jb.ngram, LL*seoul.ngram))
+text.noun_byteam %>% arrange(-rank, team) %>% filter(Freq>=10 & LL>=3.84)
