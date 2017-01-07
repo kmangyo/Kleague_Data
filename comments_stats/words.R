@@ -2,6 +2,8 @@ library(KoNLP)
 library(reshape2)
 library(dplyr)
 library(wordcloud2)
+library(ggplot2)
+theme_set(theme_gray(base_family='NanumGothic'))
 
 comment_df_seoul<-subset(comment_df, team==c('서울'))
 comment_df_jb<-subset(comment_df, team==c('전북'))
@@ -40,14 +42,19 @@ text.noun_jb<-table(text.noun_jb$value)
 text.noun_jb<-subset(data.frame(text.noun_jb), Freq > 1)
 text.noun_jb<-text.noun_jb %>% arrange(-Freq)
 
-wordcloud2(data = text.noun_jb, size = 1, fontFamily='NanumGothic',color = "white",backgroundColor = "darkgreen")
-wordcloud2(data = text.noun_seoul, size = 1, fontFamily='NanumGothic',color = "darkred",backgroundColor = "black")
+#wordcloud2(data = text.noun_jb, size = 1, fontFamily='NanumGothic',color = "white",backgroundColor = "darkgreen")
+#wordcloud2(data = text.noun_seoul, size = 1, fontFamily='NanumGothic',color = "darkred",backgroundColor = "black")
 
 text.noun<- rbind(text.noun_jb, text.noun_seoul)
 text.noun<- text.noun %>% group_by(Var1) %>% summarise(Freq=sum(Freq))
 text.noun<-text.noun %>% arrange(-Freq)
 
-wordcloud2(data = text.noun, size = 1, fontFamily='NanumGothic',color = "skyblue",backgroundColor = "darkblue")
+ggplot(head(text.noun,10), aes(x=reorder(keyword, freq), y=freq)) + geom_bar(stat = "identity") + coord_flip()+ xlab("keyword")
+
+#wordcloud2(data = text.noun, size = 1, fontFamily='NanumGothic',color = "skyblue",backgroundColor = "darkblue")
+
+ggplot(head(text.noun_jb,10), aes(x=reorder(Var1, Freq), y=Freq)) + geom_bar(stat = "identity") + coord_flip()+ xlab("keyword") +labs(title="전북")
+ggplot(head(text.noun_seoul,10), aes(x=reorder(Var1, Freq), y=Freq)) + geom_bar(stat = "identity") + coord_flip()+ xlab("keyword")+labs(title="서울")
 
 #chi-square test
 text.noun_jb$team<-'JB'
@@ -68,4 +75,8 @@ text.noun_byteam$jb.ngram<-nrow(subset(text.noun_byteam,team==c('JB')))
 text.noun_byteam$seoul.ngram<-nrow(subset(text.noun_byteam,team==c('Seoul')))
   
 text.noun_byteam$rank<- with(text.noun_byteam, ifelse(team==c('JB'),LL*jb.ngram, LL*seoul.ngram))
-text.noun_byteam %>% arrange(-rank, team) %>% filter(Freq>=10 & LL>=3.84)
+text.noun_byteam<-text.noun_byteam %>% arrange(-LL,team)
+
+ggplot(head(subset(text.noun_byteam,team==c('JB')&Freq>=10),5), aes(x=reorder(Var1, LL), y=LL)) + geom_bar(stat = "identity") + coord_flip()+ xlab("keyword") +labs(title="전북")
+ggplot(head(subset(text.noun_byteam,team==c('Seoul')&Freq>=10),5), aes(x=reorder(Var1, LL), y=LL)) + geom_bar(stat = "identity") + coord_flip()+ xlab("keyword") +labs(title="서울")
+
